@@ -55,8 +55,8 @@ export function Header({ characters }: HeaderProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            {/* DEV TOGGLE - Creative Mode (only in development) */}
-            {process.env.NODE_ENV === "development" && (
+            {/* Creative Mode Toggle */}
+            {(
               <div className="flex items-center gap-2 bg-zinc-900/80 px-3 py-1.5 rounded-xl border border-zinc-800">
                 <Zap className={`w-3.5 h-3.5 ${bypassRAG ? "text-orange-400" : "text-zinc-500"}`} />
                 <Label
