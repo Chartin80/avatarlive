@@ -13,21 +13,37 @@ import { getEmbedding, initEmbeddingsClient } from "@/lib/embeddings";
 // ==============================================
 // CHAT API ENDPOINT
 // Handles RAG + Claude streaming responses
-// LOW LATENCY: Uses Haiku + prompt caching
+// LOW LATENCY: Uses Haiku for fastest responses
 // ==============================================
 
-// Initialize clients
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
-});
+// Lazy initialization of clients (initialized on first request)
+let anthropic: Anthropic | null = null;
+let pinecone: Pinecone | null = null;
+let embeddingsInitialized = false;
 
-const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY!,
-});
+function getAnthropicClient(): Anthropic {
+  if (!anthropic) {
+    anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY!,
+    });
+  }
+  return anthropic;
+}
 
-// Initialize embeddings (if OpenAI key available)
-if (process.env.OPENAI_API_KEY) {
-  initEmbeddingsClient(process.env.OPENAI_API_KEY);
+function getPineconeClient(): Pinecone {
+  if (!pinecone) {
+    pinecone = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY!,
+    });
+  }
+  return pinecone;
+}
+
+function ensureEmbeddingsInitialized(): void {
+  if (!embeddingsInitialized && process.env.OPENAI_API_KEY) {
+    initEmbeddingsClient(process.env.OPENAI_API_KEY);
+    embeddingsInitialized = true;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -50,6 +66,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Initialize clients lazily
+    ensureEmbeddingsInitialized();
+
     // LOW LATENCY: Run RAG retrieval in parallel with other setup
     let ragContext: RAGChunk[] = [];
 
@@ -59,7 +78,7 @@ export async function POST(request: NextRequest) {
 
       // Query Pinecone for relevant context
       ragContext = await queryRAGContext(
-        pinecone,
+        getPineconeClient(),
         process.env.PINECONE_INDEX!,
         character.pineconeNamespace,
         queryEmbedding,
@@ -91,7 +110,7 @@ export async function POST(request: NextRequest) {
 
     // Create streaming response
     // LOW LATENCY: Using Haiku for fastest responses
-    const stream = await anthropic.messages.stream({
+    const stream = await getAnthropicClient().messages.stream({
       model,
       max_tokens: 300, // Keep responses concise for conversation
       system: systemPrompt,

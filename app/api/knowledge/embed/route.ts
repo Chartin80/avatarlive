@@ -9,13 +9,24 @@ import { getEmbeddings, initEmbeddingsClient } from "@/lib/embeddings";
 // Process documents and store in Pinecone
 // ==============================================
 
-// Initialize clients
-const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY!,
-});
+// Lazy initialization
+let pinecone: Pinecone | null = null;
+let embeddingsInitialized = false;
 
-if (process.env.OPENAI_API_KEY) {
-  initEmbeddingsClient(process.env.OPENAI_API_KEY);
+function getPineconeClient(): Pinecone {
+  if (!pinecone) {
+    pinecone = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY!,
+    });
+  }
+  return pinecone;
+}
+
+function ensureEmbeddingsInitialized(): void {
+  if (!embeddingsInitialized && process.env.OPENAI_API_KEY) {
+    initEmbeddingsClient(process.env.OPENAI_API_KEY);
+    embeddingsInitialized = true;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -97,6 +108,9 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+      // Ensure embeddings client is initialized
+      ensureEmbeddingsInitialized();
+
       // Chunk the content
       const chunks = chunkText(content, 500, 50);
       console.log(`[Knowledge] Created ${chunks.length} chunks`);
@@ -120,7 +134,7 @@ export async function POST(request: NextRequest) {
 
       // Upsert to Pinecone
       await upsertChunks(
-        pinecone,
+        getPineconeClient(),
         process.env.PINECONE_INDEX!,
         namespace,
         vectorData
@@ -199,7 +213,7 @@ export async function DELETE(request: NextRequest) {
     if (knowledgeFile) {
       // Delete vectors from Pinecone
       const namespace = createNamespace(characterSlug);
-      const index = pinecone.index(process.env.PINECONE_INDEX!);
+      const index = getPineconeClient().index(process.env.PINECONE_INDEX!);
       const ns = index.namespace(namespace);
 
       // Delete by ID prefix
