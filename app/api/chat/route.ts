@@ -90,17 +90,11 @@ export async function POST(request: NextRequest) {
     messages.push({ role: "user", content: message });
 
     // Create streaming response
+    // LOW LATENCY: Using Haiku for fastest responses
     const stream = await anthropic.messages.stream({
       model,
       max_tokens: 300, // Keep responses concise for conversation
-      system: [
-        {
-          type: "text",
-          text: systemPrompt,
-          // LOW LATENCY: Enable prompt caching
-          cache_control: { type: "ephemeral" },
-        },
-      ],
+      system: systemPrompt,
       messages,
     });
 
