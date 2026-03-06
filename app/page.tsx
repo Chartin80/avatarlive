@@ -14,7 +14,7 @@ import { SettingsPanel } from "@/components/settings/settings-panel";
 import { useConversationStore, useUIStore } from "@/lib/store";
 import { useConversation } from "@/hooks/use-conversation";
 import type { Character } from "@/types";
-import { Loader2, AlertCircle, Sparkles } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // ==============================================
@@ -83,7 +83,6 @@ const DEMO_CHARACTERS: Character[] = [
 export default function Home() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [_loadError, _setLoadError] = useState<string | null>(null);
 
   const { currentCharacter, setCurrentCharacter, setCharacters: setStoreCharacters } =
     useConversationStore();
@@ -173,28 +172,6 @@ export default function Home() {
           </div>
           <Loader2 className="w-8 h-8 animate-spin text-white/60" />
           <p className="text-white/60">Loading AvatarLive...</p>
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (loadError) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-md"
-        >
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-white mb-2">
-            Failed to Load
-          </h1>
-          <p className="text-white/60 mb-4">{loadError}</p>
-          <Button onClick={() => window.location.reload()}>
-            Try Again
-          </Button>
         </motion.div>
       </div>
     );
