@@ -1,0 +1,18 @@
+This is a placeholder file. Replace with actual 192x192 PNG icon.
+
+To generate icons, you can use a tool like:
+- https://realfavicongenerator.net/
+- https://www.pwabuilder.com/imageGenerator
+
+Or create a simple icon using this SVG and convert to PNG:
+
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="32" fill="url(#gradient)"/>
+  <path d="M96 48L128 80L96 144L64 80L96 48Z" fill="white"/>
+  <defs>
+    <linearGradient id="gradient" x1="0" y1="0" x2="192" y2="192">
+      <stop stop-color="#EF4444"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+  </defs>
+</svg>
