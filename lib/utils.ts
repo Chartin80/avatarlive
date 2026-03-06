@@ -113,7 +113,7 @@ export async function requestMicrophonePermission(): Promise<boolean> {
 // Get audio level from analyzer
 export function getAudioLevel(
   analyser: AnalyserNode,
-  dataArray: Uint8Array
+  dataArray: Uint8Array<ArrayBuffer>
 ): number {
   analyser.getByteFrequencyData(dataArray);
   const sum = dataArray.reduce((a, b) => a + b, 0);
