@@ -91,18 +91,11 @@ export async function streamClaudeResponse(
       content: userMessage,
     });
 
-    // LOW LATENCY: Use prompt caching for system prompt
+    // LOW LATENCY: Using Haiku for fastest responses
     const stream = await client.messages.stream({
       model,
       max_tokens: 300, // Keep responses concise for conversation
-      system: [
-        {
-          type: "text",
-          text: systemPrompt,
-          // Enable prompt caching for the system prompt
-          cache_control: { type: "ephemeral" },
-        },
-      ],
+      system: systemPrompt,
       messages,
     });
 
