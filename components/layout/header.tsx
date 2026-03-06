@@ -1,9 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Settings, Users, Sparkles } from "lucide-react";
+import { Settings, Users, Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useConversationStore, useUIStore } from "@/lib/store";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useConversationStore, useUIStore, useDevStore } from "@/lib/store";
 import type { Character } from "@/types";
 
 interface HeaderProps {
@@ -13,6 +15,7 @@ interface HeaderProps {
 export function Header({ characters }: HeaderProps) {
   const { currentCharacter } = useConversationStore();
   const { setCharacterSelectorOpen, setSettingsOpen } = useUIStore();
+  const { bypassRAG, toggleBypassRAG } = useDevStore();
 
   return (
     <motion.header
@@ -52,6 +55,25 @@ export function Header({ characters }: HeaderProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {/* DEV TOGGLE - Creative Mode (only in development) */}
+            {process.env.NODE_ENV === "development" && (
+              <div className="flex items-center gap-2 bg-zinc-900/80 px-3 py-1.5 rounded-xl border border-zinc-800">
+                <Zap className={`w-3.5 h-3.5 ${bypassRAG ? "text-orange-400" : "text-zinc-500"}`} />
+                <Label
+                  htmlFor="bypass-rag"
+                  className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider cursor-pointer"
+                >
+                  Creative
+                </Label>
+                <Switch
+                  id="bypass-rag"
+                  checked={bypassRAG}
+                  onCheckedChange={toggleBypassRAG}
+                  className="data-[state=checked]:bg-orange-500 scale-75"
+                />
+              </div>
+            )}
+
             {/* Character Switcher */}
             {characters.length > 1 && (
               <Button

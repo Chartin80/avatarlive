@@ -176,6 +176,17 @@ export const useUIStore = create<UIState>()((set) => ({
   setShowInstallPrompt: (value) => set({ showInstallPrompt: value }),
 }));
 
+// ---------- Dev Store (Creative Mode Toggle) ----------
+interface DevState {
+  bypassRAG: boolean;
+  toggleBypassRAG: () => void;
+}
+
+export const useDevStore = create<DevState>()((set) => ({
+  bypassRAG: false,
+  toggleBypassRAG: () => set((state) => ({ bypassRAG: !state.bypassRAG })),
+}));
+
 // ---------- Selectors ----------
 export const selectLastUserMessage = (state: ConversationState) =>
   state.messages.filter((m) => m.role === "user").slice(-1)[0];

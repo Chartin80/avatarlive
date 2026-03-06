@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useEffect, useState } from "react";
-import { useConversationStore, useSettingsStore } from "@/lib/store";
+import { useConversationStore, useSettingsStore, useDevStore } from "@/lib/store";
 import { DeepgramClient } from "@/lib/deepgram";
 import { DIDClient } from "@/lib/did";
 import { generateId } from "@/lib/utils";
@@ -126,6 +126,7 @@ export function useConversation({ character, onGreeting }: UseConversationOption
             message: userText,
             character,
             conversationHistory: messages.slice(-10), // Last 10 messages
+            bypassRAG: useDevStore.getState().bypassRAG, // Creative mode flag
           }),
         });
 

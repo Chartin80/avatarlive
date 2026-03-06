@@ -53,10 +53,12 @@ export async function POST(request: NextRequest) {
       message,
       character,
       conversationHistory,
+      bypassRAG = false,
     }: {
       message: string;
       character: Character;
       conversationHistory: Message[];
+      bypassRAG?: boolean;
     } = body;
 
     if (!message || !character) {
@@ -66,29 +68,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Initialize clients lazily
-    ensureEmbeddingsInitialized();
-
     // LOW LATENCY: Run RAG retrieval in parallel with other setup
     let ragContext: RAGChunk[] = [];
 
-    try {
-      // Get embedding for the query
-      const queryEmbedding = await getEmbedding(message);
+    // Check if Creative Mode is enabled (bypass RAG/Pinecone)
+    if (bypassRAG) {
+      console.log("🎨 CREATIVE MODE ENABLED — Pinecone bypassed, character responds freely");
+      ragContext = [];
+    } else {
+      // Initialize clients lazily
+      ensureEmbeddingsInitialized();
 
-      // Query Pinecone for relevant context
-      ragContext = await queryRAGContext(
-        getPineconeClient(),
-        process.env.PINECONE_INDEX!,
-        character.pineconeNamespace,
-        queryEmbedding,
-        5 // Top 5 chunks
-      );
+      try {
+        // Get embedding for the query
+        const queryEmbedding = await getEmbedding(message);
 
-      console.log(`[RAG] Found ${ragContext.length} relevant chunks`);
-    } catch (ragError) {
-      console.warn("[RAG] Failed to retrieve context:", ragError);
-      // Continue without RAG context
+        // Query Pinecone for relevant context
+        ragContext = await queryRAGContext(
+          getPineconeClient(),
+          process.env.PINECONE_INDEX!,
+          character.pineconeNamespace,
+          queryEmbedding,
+          5 // Top 5 chunks
+        );
+
+        console.log(`[RAG] Found ${ragContext.length} relevant chunks`);
+      } catch (ragError) {
+        console.warn("[RAG] Failed to retrieve context:", ragError);
+        // Continue without RAG context
+      }
     }
 
     // Determine model based on query complexity
