@@ -3,7 +3,6 @@ import { Pinecone } from "@pinecone-database/pinecone";
 import { createAdminClient } from "@/lib/supabase/server";
 import { chunkText, upsertChunks, createNamespace } from "@/lib/pinecone";
 import { getEmbeddings, initEmbeddingsClient } from "@/lib/embeddings";
-import { v4 as uuidv4 } from "uuid";
 
 // ==============================================
 // KNOWLEDGE EMBEDDING API

@@ -17,7 +17,7 @@ import {
   Upload,
   Trash2,
   FileText,
-  Image,
+  ImageIcon,
   Loader2,
   Check,
   AlertCircle,
@@ -336,7 +336,7 @@ function CreateCharacterForm({ onSuccess }: { onSuccess: () => void }) {
           Character Image
         </label>
         <div className="border-2 border-dashed border-white/10 rounded-lg p-8 text-center hover:border-white/30 transition-colors cursor-pointer">
-          <Image className="w-8 h-8 text-white/40 mx-auto mb-2" />
+          <ImageIcon className="w-8 h-8 text-white/40 mx-auto mb-2" />
           <p className="text-sm text-white/60">Click to upload or drag and drop</p>
           <p className="text-xs text-white/40 mt-1">PNG, JPG up to 5MB</p>
         </div>

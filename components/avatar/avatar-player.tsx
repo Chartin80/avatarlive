@@ -21,7 +21,7 @@ export function AvatarPlayer({
   className,
 }: AvatarPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoReady, setIsVideoReady] = useState(false);
+  const [_isVideoReady, setIsVideoReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const { isListening, isSpeaking, isProcessing, streamStatus } =
     useConversationStore();

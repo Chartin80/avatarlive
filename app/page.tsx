@@ -83,7 +83,7 @@ const DEMO_CHARACTERS: Character[] = [
 export default function Home() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [_loadError, _setLoadError] = useState<string | null>(null);
 
   const { currentCharacter, setCurrentCharacter, setCharacters: setStoreCharacters } =
     useConversationStore();
@@ -252,8 +252,8 @@ export default function Home() {
 // Conversation area component
 function ConversationArea({
   character,
-  characters,
-  onSelectCharacter,
+  characters: _characters,
+  onSelectCharacter: _onSelectCharacter,
 }: {
   character: Character;
   characters: Character[];
@@ -267,7 +267,7 @@ function ConversationArea({
       },
     });
 
-  const { isListening, isProcessing, streamStatus } = useConversationStore();
+  const { isListening: _isListening, isProcessing, streamStatus: _streamStatus } = useConversationStore();
 
   return (
     <div className="flex-1 flex flex-col min-h-0">

@@ -10,7 +10,7 @@ const DID_API_URL = "https://api.d-id.com";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { sourceUrl, voiceId } = body;
+    const { sourceUrl, voiceId: _voiceId } = body;
 
     if (!sourceUrl) {
       return NextResponse.json(
