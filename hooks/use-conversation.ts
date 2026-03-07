@@ -223,8 +223,17 @@ export function useConversation({ character, onGreeting }: UseConversationOption
 
   // Speak response via ElevenLabs TTS
   const speakResponse = useCallback(
-    async (text: string) => {
-      if (!character || !audioRef.current) return;
+    async (text: string, voiceIdOverride?: string) => {
+      if (!audioRef.current) return;
+
+      // Use override voiceId or get from current character in store
+      const currentChar = useConversationStore.getState().currentCharacter;
+      const voiceId = voiceIdOverride || currentChar?.voiceStyle.voiceId;
+
+      if (!voiceId) {
+        console.warn("[TTS] No voice ID available");
+        return;
+      }
 
       try {
         setIsSpeaking(true);
@@ -235,7 +244,7 @@ export function useConversation({ character, onGreeting }: UseConversationOption
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             text,
-            voiceId: character.voiceStyle.voiceId,
+            voiceId,
           }),
         });
 
@@ -263,7 +272,7 @@ export function useConversation({ character, onGreeting }: UseConversationOption
         setIsSpeaking(false);
       }
     },
-    [character, setIsSpeaking]
+    [setIsSpeaking]
   );
 
   // Main conversation handler
@@ -392,7 +401,7 @@ export function useConversation({ character, onGreeting }: UseConversationOption
 
       // Speak greeting if autoPlay enabled
       if (settings.autoPlay) {
-        speakResponse(greeting);
+        speakResponse(greeting, character.voiceStyle.voiceId);
       }
     }
     // Only run when character changes
