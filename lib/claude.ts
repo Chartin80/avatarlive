@@ -7,8 +7,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { Character, Message, RAGChunk } from "@/types";
 
 // LOW LATENCY: Using Haiku for fastest responses
-const DEFAULT_MODEL = "claude-3-5-haiku-20241022";
-const SONNET_MODEL = "claude-sonnet-4-20250514";
+const DEFAULT_MODEL = "claude-haiku-4-latest";
+const SONNET_MODEL = "claude-sonnet-4-latest";
 
 interface ClaudeStreamCallbacks {
   onToken: (token: string) => void;

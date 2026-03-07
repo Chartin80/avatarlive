@@ -104,8 +104,8 @@ export async function POST(request: NextRequest) {
     // Determine model based on query complexity
     const useHighQuality = shouldUseHighQuality(message);
     const model = useHighQuality
-      ? "claude-sonnet-4-20250514"
-      : "claude-3-5-haiku-20241022";
+      ? "claude-sonnet-4-latest"
+      : "claude-haiku-4-latest";
 
     console.log(
       `[Chat] Using model: ${model}, RAG chunks: ${ragContext.length}`
