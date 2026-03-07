@@ -88,10 +88,18 @@ export const useConversationStore = create<ConversationState>()((set, get) => ({
   currentCharacter: null,
   characters: [],
   setCurrentCharacter: (character) => {
-    set({ currentCharacter: character });
-    // Clear messages when switching characters
-    if (character?.id !== get().currentCharacter?.id) {
-      set({ messages: [] });
+    const previousCharacter = get().currentCharacter;
+    // Clear messages when switching to a different character
+    if (character?.id !== previousCharacter?.id) {
+      set({
+        currentCharacter: character,
+        messages: [],
+        currentTranscript: "",
+        interimTranscript: "",
+        error: null,
+      });
+    } else {
+      set({ currentCharacter: character });
     }
   },
   setCharacters: (characters) => set({ characters }),

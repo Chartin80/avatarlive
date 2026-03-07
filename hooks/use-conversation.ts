@@ -128,7 +128,11 @@ export function useConversation({ character, onGreeting }: UseConversationOption
   // Process chat with Claude + RAG
   const processChat = useCallback(
     async (userText: string): Promise<string> => {
-      if (!character) throw new Error("No character selected");
+      // Get current character and messages from store to avoid stale closures
+      const currentChar = useConversationStore.getState().currentCharacter;
+      const currentMessages = useConversationStore.getState().messages;
+
+      if (!currentChar) throw new Error("No character selected");
 
       setIsProcessing(true);
 
@@ -138,8 +142,8 @@ export function useConversation({ character, onGreeting }: UseConversationOption
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: userText,
-            character,
-            conversationHistory: messages.slice(-10), // Last 10 messages
+            character: currentChar,
+            conversationHistory: currentMessages.slice(-10), // Last 10 messages
             bypassRAG: useDevStore.getState().bypassRAG, // Creative mode flag
           }),
         });
@@ -162,7 +166,7 @@ export function useConversation({ character, onGreeting }: UseConversationOption
           role: "assistant",
           content: "",
           timestamp: Date.now(),
-          characterId: character.id,
+          characterId: currentChar.id,
           isStreaming: true,
         });
 
@@ -218,7 +222,7 @@ export function useConversation({ character, onGreeting }: UseConversationOption
         setIsProcessing(false);
       }
     },
-    [character, messages, addMessage, updateMessage, setIsProcessing]
+    [addMessage, updateMessage, setIsProcessing]
   );
 
   // Speak response via ElevenLabs TTS
@@ -278,7 +282,9 @@ export function useConversation({ character, onGreeting }: UseConversationOption
   // Main conversation handler
   const handleUserSpeech = useCallback(
     async (transcript: string) => {
-      if (!transcript.trim() || !character) return;
+      // Get current character from store to avoid stale closures
+      const currentChar = useConversationStore.getState().currentCharacter;
+      if (!transcript.trim() || !currentChar) return;
 
       // Add user message
       addMessage({
@@ -306,7 +312,6 @@ export function useConversation({ character, onGreeting }: UseConversationOption
       }
     },
     [
-      character,
       addMessage,
       setCurrentTranscript,
       setInterimTranscript,
