@@ -131,7 +131,8 @@ export function useConversation({ character, onGreeting }: UseConversationOption
         });
 
         if (!response.ok) {
-          throw new Error("Chat request failed");
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.details || errorData.error || `Chat request failed (${response.status})`);
         }
 
         // Handle streaming response
@@ -180,10 +181,20 @@ export function useConversation({ character, onGreeting }: UseConversationOption
                   },
                 });
               } else if (data.type === "error") {
+                // Update message with error and re-throw
+                updateMessage(assistantMessageId, {
+                  content: `Error: ${data.error}`,
+                  isStreaming: false,
+                });
                 throw new Error(data.error);
               }
             } catch (parseError) {
-              console.warn("[Chat] Parse error:", parseError);
+              // Only log actual JSON parse errors, re-throw API errors
+              if (parseError instanceof SyntaxError) {
+                console.warn("[Chat] JSON parse error:", parseError);
+              } else {
+                throw parseError;
+              }
             }
           }
         }

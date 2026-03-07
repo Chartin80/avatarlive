@@ -23,9 +23,11 @@ let embeddingsInitialized = false;
 
 function getAnthropicClient(): Anthropic {
   if (!anthropic) {
-    anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY!,
-    });
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error("ANTHROPIC_API_KEY environment variable is not set");
+    }
+    anthropic = new Anthropic({ apiKey });
   }
   return anthropic;
 }
@@ -155,9 +157,10 @@ export async function POST(request: NextRequest) {
           controller.close();
         } catch (error) {
           console.error("[Chat] Streaming error:", error);
+          const errorMessage = error instanceof Error ? error.message : "Streaming failed";
           const errorChunk = JSON.stringify({
             type: "error",
-            error: "Streaming failed",
+            error: errorMessage,
           }) + "\n";
           controller.enqueue(encoder.encode(errorChunk));
           controller.close();
