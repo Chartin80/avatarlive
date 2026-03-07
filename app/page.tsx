@@ -33,8 +33,8 @@ const DEMO_CHARACTERS: Character[] = [
     imageUrl: "/characters/avatar-1.webp",
     greeting: "Alright… Pull up a chair. What's weighing on your mind?",
     voiceStyle: {
-      provider: "d-id",
-      voiceId: "en-US-GuyNeural",
+      provider: "elevenlabs",
+      voiceId: "QMJTqaMXmGnG8TCm8WQG",
     },
     accentColor: "#8B7355",
     pineconeNamespace: "character_walter_briggs",
@@ -51,8 +51,8 @@ const DEMO_CHARACTERS: Character[] = [
     imageUrl: "/characters/avatar-2.webp",
     greeting: "Hey you! Ready to turn that charm all the way up? Tell me what's going on.",
     voiceStyle: {
-      provider: "d-id",
-      voiceId: "en-US-JennyNeural",
+      provider: "elevenlabs",
+      voiceId: "FCYF8vBfwu11whOhvb94",
     },
     accentColor: "#E91E63",
     pineconeNamespace: "character_piper_bloom",
@@ -69,8 +69,8 @@ const DEMO_CHARACTERS: Character[] = [
     imageUrl: "/characters/avatar-3.webp",
     greeting: "Alright, listen. What is it you want to learn about real Italian cooking?",
     voiceStyle: {
-      provider: "d-id",
-      voiceId: "en-US-GuyNeural",
+      provider: "elevenlabs",
+      voiceId: "QMJTqaMXmGnG8TCm8WQG",
     },
     accentColor: "#CE2B37",
     pineconeNamespace: "character_chef_antonio",

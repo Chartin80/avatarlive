@@ -38,9 +38,23 @@ export function useConversation({ character, onGreeting }: UseConversationOption
   const deepgramRef = useRef<DeepgramClient | null>(null);
   const didClientRef = useRef<DIDClient | null>(null);
   const videoStreamRef = useRef<MediaStream | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // State for video stream
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+
+  // Initialize audio element
+  useEffect(() => {
+    audioRef.current = new Audio();
+    audioRef.current.onended = () => setIsSpeaking(false);
+    audioRef.current.onerror = () => setIsSpeaking(false);
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [setIsSpeaking]);
 
   // Initialize Deepgram client
   const initDeepgram = useCallback(async () => {
@@ -207,43 +221,49 @@ export function useConversation({ character, onGreeting }: UseConversationOption
     [character, messages, addMessage, updateMessage, setIsProcessing]
   );
 
-  // Speak response via D-ID
+  // Speak response via ElevenLabs TTS
   const speakResponse = useCallback(
     async (text: string) => {
-      if (!character || !settings.videoEnabled) return;
-
-      const streamStatus = useConversationStore.getState().streamStatus;
-      if (!streamStatus.sessionId) {
-        console.warn("[Conversation] No D-ID session available");
-        return;
-      }
+      if (!character || !audioRef.current) return;
 
       try {
         setIsSpeaking(true);
 
-        await fetch("/api/did/talk", {
+        // Call ElevenLabs TTS API
+        const response = await fetch("/api/tts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            streamId: streamStatus.sessionId, // This would be the stream ID
-            sessionId: streamStatus.sessionId,
             text,
             voiceId: character.voiceStyle.voiceId,
-            voiceProvider: character.voiceStyle.provider,
           }),
         });
 
-        // In real implementation, video would stream via WebRTC
-        // For demo, we simulate speaking duration
-        const speakDuration = Math.max(2000, text.length * 50);
-        await new Promise((resolve) => setTimeout(resolve, speakDuration));
+        if (!response.ok) {
+          const error = await response.json();
+          console.error("[TTS] Error:", error);
+          setIsSpeaking(false);
+          return;
+        }
+
+        // Create audio blob and play
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        audioRef.current.src = audioUrl;
+        await audioRef.current.play();
+
+        // Clean up URL after playback
+        audioRef.current.onended = () => {
+          URL.revokeObjectURL(audioUrl);
+          setIsSpeaking(false);
+        };
       } catch (error) {
         console.error("[Conversation] Speak error:", error);
-      } finally {
         setIsSpeaking(false);
       }
     },
-    [character, settings.videoEnabled, setIsSpeaking]
+    [character, setIsSpeaking]
   );
 
   // Main conversation handler
@@ -267,8 +287,8 @@ export function useConversation({ character, onGreeting }: UseConversationOption
         // Process with Claude + RAG
         const response = await processChat(transcript);
 
-        // Speak response (if video enabled)
-        if (settings.videoEnabled && settings.autoPlay) {
+        // Speak response via ElevenLabs TTS
+        if (settings.autoPlay) {
           await speakResponse(response);
         }
       } catch (error) {
@@ -343,6 +363,12 @@ export function useConversation({ character, onGreeting }: UseConversationOption
 
   // Interrupt speaking
   const interrupt = useCallback(async () => {
+    // Stop audio playback
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    // Stop D-ID if active
     if (didClientRef.current) {
       await didClientRef.current.interrupt();
     }
@@ -364,8 +390,8 @@ export function useConversation({ character, onGreeting }: UseConversationOption
         characterId: character.id,
       });
 
-      // Speak greeting if enabled
-      if (settings.videoEnabled && settings.autoPlay) {
+      // Speak greeting if autoPlay enabled
+      if (settings.autoPlay) {
         speakResponse(greeting);
       }
     }
