@@ -70,7 +70,7 @@ const DEMO_CHARACTERS: Character[] = [
     greeting: "Alright, listen. What is it you want to learn about real Italian cooking?",
     voiceStyle: {
       provider: "elevenlabs",
-      voiceId: "QMJTqaMXmGnG8TCm8WQG",
+      voiceId: "s2wvuS7SwITYg8dqsJdn",
     },
     accentColor: "#CE2B37",
     pineconeNamespace: "character_chef_antonio",
