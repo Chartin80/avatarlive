@@ -58,7 +58,16 @@ export function useConversation({ character, onGreeting }: UseConversationOption
 
   // Initialize Deepgram client
   const initDeepgram = useCallback(async () => {
-    if (deepgramRef.current) return deepgramRef.current;
+    // Return existing client only if it's still connected
+    if (deepgramRef.current && deepgramRef.current.isListening()) {
+      return deepgramRef.current;
+    }
+
+    // Clean up old client if exists
+    if (deepgramRef.current) {
+      deepgramRef.current.stop();
+      deepgramRef.current = null;
+    }
 
     try {
       // Get Deepgram API key from server

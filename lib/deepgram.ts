@@ -139,6 +139,7 @@ export class DeepgramClient {
       this.socket.onclose = (event) => {
         console.log("[Deepgram] WebSocket closed:", event.code);
         this.isConnected = false;
+        this.onStatus?.("disconnected");
 
         // Attempt reconnection if not intentionally closed
         if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
