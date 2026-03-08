@@ -9,7 +9,10 @@ export async function POST(request: NextRequest) {
   try {
     const { text, voiceId } = await request.json();
 
+    console.log("[TTS] Request received:", { textLength: text?.length, voiceId });
+
     if (!text || !voiceId) {
+      console.error("[TTS] Missing fields:", { text: !!text, voiceId: !!voiceId });
       return new Response(
         JSON.stringify({ error: "Missing text or voiceId" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[TTS] ElevenLabs error:", errorText);
+      console.error("[TTS] ElevenLabs error:", response.status, errorText);
       return new Response(
         JSON.stringify({ error: "TTS generation failed", details: errorText }),
         { status: response.status, headers: { "Content-Type": "application/json" } }
@@ -57,6 +60,7 @@ export async function POST(request: NextRequest) {
 
     // Return audio stream
     const audioBuffer = await response.arrayBuffer();
+    console.log("[TTS] Success - audio size:", audioBuffer.byteLength);
 
     return new Response(audioBuffer, {
       headers: {

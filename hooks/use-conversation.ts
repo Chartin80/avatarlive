@@ -237,11 +237,18 @@ export function useConversation({ character, onGreeting }: UseConversationOption
   // Speak response via ElevenLabs TTS
   const speakResponse = useCallback(
     async (text: string, voiceIdOverride?: string) => {
-      if (!audioRef.current) return;
+      console.log("[TTS] speakResponse called:", { textLength: text?.length, voiceIdOverride });
+
+      if (!audioRef.current) {
+        console.error("[TTS] No audio element available");
+        return;
+      }
 
       // Use override voiceId or get from current character in store
       const currentChar = useConversationStore.getState().currentCharacter;
       const voiceId = voiceIdOverride || currentChar?.voiceStyle.voiceId;
+
+      console.log("[TTS] Using voiceId:", voiceId, "from character:", currentChar?.name);
 
       if (!voiceId) {
         console.warn("[TTS] No voice ID available");
@@ -252,6 +259,7 @@ export function useConversation({ character, onGreeting }: UseConversationOption
         setIsSpeaking(true);
 
         // Call ElevenLabs TTS API
+        console.log("[TTS] Calling /api/tts...");
         const response = await fetch("/api/tts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -263,25 +271,28 @@ export function useConversation({ character, onGreeting }: UseConversationOption
 
         if (!response.ok) {
           const error = await response.json();
-          console.error("[TTS] Error:", error);
+          console.error("[TTS] API Error:", error);
           setIsSpeaking(false);
           return;
         }
 
         // Create audio blob and play
         const audioBlob = await response.blob();
+        console.log("[TTS] Got audio blob, size:", audioBlob.size);
         const audioUrl = URL.createObjectURL(audioBlob);
 
         audioRef.current.src = audioUrl;
+        console.log("[TTS] Playing audio...");
         await audioRef.current.play();
 
         // Clean up URL after playback
         audioRef.current.onended = () => {
+          console.log("[TTS] Audio playback ended");
           URL.revokeObjectURL(audioUrl);
           setIsSpeaking(false);
         };
       } catch (error) {
-        console.error("[Conversation] Speak error:", error);
+        console.error("[TTS] Speak error:", error);
         setIsSpeaking(false);
       }
     },
