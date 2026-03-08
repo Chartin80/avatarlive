@@ -34,7 +34,7 @@ const DEMO_CHARACTERS: Character[] = [
     greeting: "Hi! I'm Darby and you can ask me anything about nature and animals",
     voiceStyle: {
       provider: "elevenlabs",
-      voiceId: "s2wvuS7SwITYg8dqsJdn",
+      voiceId: "Nggzl2QAXh3OijoXD116",
     },
     accentColor: "#4CAF50",
     pineconeNamespace: "character_darby",
