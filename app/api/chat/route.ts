@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
     // LOW LATENCY: Using Haiku for fastest responses
     const stream = await getAnthropicClient().messages.stream({
       model,
-      max_tokens: 300, // Keep responses concise for conversation
+      max_tokens: 150, // ~400 characters for concise responses
       system: systemPrompt,
       messages,
     });

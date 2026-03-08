@@ -34,7 +34,7 @@ const DEMO_CHARACTERS: Character[] = [
     greeting: "Alright… Pull up a chair. What's weighing on your mind?",
     voiceStyle: {
       provider: "elevenlabs",
-      voiceId: "QMJTqaMXmGnG8TCm8WQG",
+      voiceId: "6sFKzaJr574YWVu4UuJF",
     },
     accentColor: "#8B7355",
     pineconeNamespace: "character_walter_briggs",
